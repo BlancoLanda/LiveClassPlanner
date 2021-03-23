@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "dynplanner-e3c00": {
+      "hosting": {
+        "app": [
+          "dynplanner-e3c00"
+        ]
+      }
+    }
+  }
+}
