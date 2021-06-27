@@ -1,0 +1,71 @@
+<app-header title="Activity breakdown"></app-header>
+
+<!-- Slider containing a preview of the content of all activities -->
+
+<ion-content>
+
+  <ion-slides pager="true" *ngIf="scenario && scenario.activities">
+    <ion-slide *ngFor="let act of scenario.activities; let actIndex = index">
+      <ion-grid>
+        <div class="ion-text-center">
+          <h2 class="activity-title">({{actIndex+1}}/{{scenario.activities.length}}) {{act.name}}</h2>
+          <div class="ion-float-center">
+                <ion-icon class="activity-icons" name="hourglass" color="primary"></ion-icon>
+                <span class="activity-text-with-icon" *ngIf="act.duration>1"> {{act.duration}} minutes - </span>
+                <span class="activity-text-with-icon" *ngIf="act.duration==1"> {{act.duration}} minute - </span>
+                <ion-icon class="activity-icons-margin" name="home" color="primary" *ngIf="act.in_class==false"></ion-icon>
+                <ion-icon class="activity-icons-margin" name="school" color="primary" *ngIf="act.in_class==true"></ion-icon>
+                <span class="activity-text-with-icon" *ngIf="act.in_class==false"> Off class - </span>
+                <span class="activity-text-with-icon" *ngIf="act.in_class==true"> In class - </span>
+                <ion-img class="activity-icons-margin" src="assets/img/oneB.png" *ngIf="act.organization=='individual'"></ion-img>
+                <ion-img class="activity-icons-marginn" src="assets/img/pairB.png" *ngIf="act.organization=='pair'"></ion-img>
+                <ion-img class="activity-icons-margin" src="assets/img/groupB.png" *ngIf="act.organization=='small group' || act.organization=='whole class'"></ion-img>
+                <span class="activity-text-with-icon" *ngIf="act.organization=='individual'"> Individual </span>
+                <span class="activity-text-with-icon" *ngIf="act.organization=='pair'"> Pair </span>
+                <span class="activity-text-with-icon" *ngIf="act.organization=='small group'"> Small group </span>
+                <span class="activity-text-with-icon" *ngIf="act.organization=='whole class'"> Whole class </span>
+          </div>
+        <ion-list>
+          <ion-item *ngIf="act.outcomes.length > 0">
+            <ion-label>
+              <div class="ion-text-center">
+                <h2><b>Learning outcomes</b></h2>
+                    <ul>
+                      <h2><li *ngFor="let out of act.outcomes;">{{out.name}}</li></h2>
+                    </ul>
+              </div>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngFor="let m of act.materials">
+            <ion-label>
+              <div class="ion-text-center">
+                <h2 *ngIf="m.position == 'bottom';else top"><b>Student resource</b></h2>
+                <ng-template #top><h2><b>Teacher resource</b></h2></ng-template>
+                <ul>
+                  <h2 *ngIf="m.material_url; else elseShow"><li><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></li></h2>
+                  <ng-template #elseShow><h3><li>{{m.material_name}}</li></h3></ng-template>
+                  <ul class="sublist">
+                    <li><h3 *ngIf="m.position == 'bottom'"><b>Cognitive effort (1-6): </b> <i>{{m.involvement.name}}</i></h3></li>
+                    <li *ngIf="m.conveyors.length > 0"><h3>Conveyors:</h3></li>
+                    <ul class ="sub-sublist" *ngIf="m.conveyors.length > 0">
+                      <li *ngFor="let con of m.conveyors;"><a *ngIf="con.url; else elseShowCon" href={{con.url}} style="font-size: 14px;" target="_blank">{{con.name}}</a>
+                        <ng-template #elseShowCon><span style="font-size: 14px;">{{con.name}}</span></ng-template>
+                      </li> 
+                    </ul>
+                    <li *ngIf="m.displays.length > 0"><h3>Displays:</h3></li>
+                    <ul class = "sub-sublist">
+                      <li *ngFor="let d of m.displays;"><ion-icon name="desktop-sharp" class="display-icons" *ngIf="d.name=='computer'"></ion-icon><ion-icon name="tablet-portrait-sharp" class="display-icons" *ngIf="d.name=='tablet'"></ion-icon><ion-icon name="phone-portrait-sharp" class="display-icons" *ngIf="d.name=='smartphone'"></ion-icon><ion-icon name="tv-outline" class="display-icons" *ngIf="d.name!='smartphone' && d.name!='computer' && d.name!='tablet'"></ion-icon><span style="font-size: 14px;text-transform: capitalize;">{{d.name}}</span></li>
+                    </ul>
+                  </ul>
+                </ul>
+              </div>
+            </ion-label>
+          </ion-item> 
+        </ion-list>
+      </div> 
+      </ion-grid>
+    </ion-slide>
+
+</ion-slides>
+
+</ion-content>

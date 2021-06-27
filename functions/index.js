@@ -5,6 +5,7 @@ const db = admin.firestore();
 db.settings({ignoreUndefinedProperties: true});
 const fetch = require("node-fetch");
 let scenarioData;
+
 const fetchScenarioJSON = async (scenarioId) => {
   try {
     const response = await fetch(`https://beta.leplanner.net/api/scenarios/single/${scenarioId}`);
@@ -17,12 +18,11 @@ const fetchScenarioJSON = async (scenarioId) => {
 };
 
 /**
- * Add data to Firestore.
+ * Add Leplanner scenario data to Firestore.
  * @param {JSON} scenario JSON array containing the scenario data.
  */
 async function addDataToFirestore(scenario) {
-  const docRef = db.collection("scenarios").doc(scenario.scenario._id);
-  await docRef.set({
+  const data = {
     id: scenario.scenario._id,
     name: scenario.scenario.name,
     description: scenario.scenario.description,
@@ -44,19 +44,27 @@ async function addDataToFirestore(scenario) {
     students: scenario.scenario.students,
     created: scenario.scenario.created,
     subjects: scenario.scenario.subjects,
-  });
+  };
+  await db.collection("scenarios").doc(scenario.scenario._id).set(data);
 }
 
-exports.leplannerToDB =
-functions.https.onRequest((request, response) => {
-  return fetchScenarioJSON(request.query.id).then((scenario) => {
-    if (typeof scenario === "string") {
-      if (scenario.includes("not valid json")) {
-        response.send("not valid json");
-      }
-    } else {
-      addDataToFirestore(scenario);
-      response.send("done!");
-    }
-  });
-});
+exports.callLeplannerToDB =
+    functions.https.onCall(async (data, context) => {
+      const id = data.id;
+
+      try {
+        
+        const scenario = await fetchScenarioJSON(data.id);
+        if (typeof scenario === "string") {
+            if (scenario.includes("not valid json")) {
+                return 'not valid json';
+            }
+        } else {
+            await addDataToFirestore(scenario);
+            return `Done! Added scenario with ID ${data.id} to the app database.`;
+        }
+    } catch (error) {
+      return `Failed to fetch the scenario.`;
+    }      
+
+    });

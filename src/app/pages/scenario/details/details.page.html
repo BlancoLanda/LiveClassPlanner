@@ -1,0 +1,75 @@
+<app-header title="Scenario details"></app-header>
+
+<!-- Present scenario details obtained from Leplanner -->
+
+<ion-content class="ion-padding">
+  <ion-list>
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Name</b></h2>
+        <h3>{{scenario.name}}</h3>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Author</b></h2>
+        <h3>{{scenario.author}}</h3>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Creation date</b></h2>
+        <h3>{{scenario.createdDate | date:'medium'}}</h3>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Subject(s)</b></h2>
+        <div *ngFor="let subject of scenario.subjects">
+          <h3>{{subject}}</h3>
+        </div>
+        
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Duration</b></h2>
+        <h3>{{scenario.activitiesDuration}} minutes</h3>
+      </ion-label>
+    </ion-item>    
+
+    <ion-item>
+      <ion-label>
+        <h2><b>Grade</b></h2>
+        <h3>{{scenario.grade}}</h3>
+      </ion-label>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <h2><b>Description</b></h2>
+        <h3>{{scenario.description}}</h3>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <h2><b>License</b></h2>
+        <h3>Creative Commons Attribution 4.0 International</h3>
+      </ion-label>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <h2><b>Scenario URL</b></h2>
+        <h3><a href='https://beta.leplanner.net/#/scenario/{{scenario.id}}' target="_blank">https://beta.leplanner.net/#/scenario/{{scenario.id}}</a></h3>
+      </ion-label>
+    </ion-item>        
+
+  </ion-list>
+</ion-content>

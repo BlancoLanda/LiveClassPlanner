@@ -1,0 +1,350 @@
+<app-header title="Timetable"></app-header>
+
+<ion-content>
+<div id="scenario-wrapper" class="clear" style="position:relative">
+  <div id="scenario-timeline-wrapper" [ngStyle]="{'width': '938px', 'height': scenario.timetableHeight+85 + 'px'}">
+    <!-- Progress bar and events in progress bar-->
+    <ion-progress-bar [ngStyle]="{'top': scenario.timetableHeight-40 + 'px', 'left': '5px', 'width': scenario.cssTotalWidth-5 + 'px'}" *ngIf="runningStatus>0" [value]="progressBarValue"></ion-progress-bar>
+    <ng-container *ngFor="let event of events; let i=index">
+      <ng-container *ngIf="event.role=='teacher'">
+        <!-- left = (Event minute)*(Progress bar width / Total duration)-->
+        <ion-button class="event-button" (click)="highlightSelectedEvent(i)" color="dark" shape="round" size="small" fill="clear" *ngIf="event.type=='intervention-request'" [ngStyle]="{'position': 'absolute', 'z-index': '1', 'margin-top': scenario.timetableHeight-66 + 'px', 'left': event.elapsedClassTime*((scenario.cssTotalWidth-5)/scenario.activitiesDuration) + 'px'}">
+          <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+        </ion-button>
+        <ion-button class="event-button" (click)="highlightSelectedEvent(i)" color="dark" shape="round" size="small" fill="clear" *ngIf="event.type=='annotation'" [ngStyle]="{'position': 'absolute', 'z-index': '1', 'margin-top': scenario.timetableHeight-68 + 'px', 'left': event.elapsedClassTime*((scenario.cssTotalWidth-5)/scenario.activitiesDuration) + 'px'}">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </ion-button>
+      </ng-container>
+      <ng-container *ngIf="event.role=='student'">
+        <!-- A cada minuto le representan (Ancho Progress Bar / Duración total) píxeles -> left = (MinutoEvento)*(Ancho Progress Bar / Duración total)-->
+        <ion-button class="event-button" (click)="highlightSelectedEvent(i)" color="dark" shape="round" size="small" fill="clear" [ngStyle]="{'position': 'absolute', 'z-index': '1', 'margin-top': scenario.timetableHeight-43 + 'px', 'left': event.elapsedClassTime*((scenario.cssTotalWidth-5)/scenario.activitiesDuration) + 'px'}">
+          <ion-icon name="hand-left-outline"></ion-icon>
+        </ion-button>      
+      </ng-container>
+    </ng-container>
+    <ion-buttons>
+      <ion-button title="Pause/unpause class session" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 429 + 'px'}" (click)="pauseUnpauseLive()" fill="solid" shape="round" *ngIf="role=='teacher' && runningStatus==1 && paused==false">
+        <ion-icon name="pause-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Pause/unpause class session" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 429 + 'px'}" (click)="pauseUnpauseLive()" fill="solid" shape="round" *ngIf="role=='teacher' && runningStatus==1 && paused==true">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Stop class session" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 5 + 'px'}" (click)="stopLive()" fill="solid" color="danger" shape="round" *ngIf="role=='teacher' && runningStatus==1">
+        <ion-icon name="stop-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Add annotation to the current activity" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 40 + 'px'}" (click)="addAnnotation()" fill="solid" color="primary" shape="round" *ngIf="role=='teacher' && runningStatus==1">
+        <ion-icon name="pencil-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Ask for intervention of student(s)" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 5 + 'px'}" (click)="askIntervention()" fill="solid" color="primary" shape="round" *ngIf="role=='teacher' && runningStatus==1">
+        <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Add personal annotation to the current activity" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 429 + 'px'}" (click)="addAnnotation()" fill="solid" color="primary" shape="round" *ngIf="role=='student' && runningStatus==1">
+        <ion-icon name="pencil-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="Raise your hand (ask teacher for your intervention)" class="pause-stop-buttons" [ngStyle]="{'margin-top': scenario.timetableHeight-15 + 'px', 'margin-left': 5 + 'px'}" (click)="studentRaiseHand()" fill="solid" color="primary" shape="round" *ngIf="role=='student' && runningStatus==1">
+        <ion-icon name="hand-left-outline"></ion-icon>
+      </ion-button>      
+    </ion-buttons>
+    <div class="legend" style="bottom: 15px; left: 15px; width: 11px; height: 11px; background-color:rgb(100,126,228) !important;"></div>
+    <div class="legend-text" style="bottom: 15px; left: 32px;">in-class activity</div>
+    <div class="legend" style="bottom: 15px; left: 160px; width: 11px; height: 11px; background-color:rgb(92,184,92) !important;"></div>
+    <div class="legend-text" style="bottom: 15px; left: 177px;">off-class activity</div>
+    <div class="legend" style="bottom: 15px; left: 305px; width: 11px; height: 11px; background-color:rgb(205, 92, 92) !important;"></div>
+    <div class="legend-text" style="bottom: 15px; left: 322px;">current/selected activity</div>
+    <div class="legend-text" style="right: 17px; top: 15px;">Teacher resource</div>
+    <div class="legend-text" style="bottom: 15px; right: 17px;">Student resource</div>
+
+    <!-- Wrapper for activity blocks -->
+    <div id="activities-wrapper">
+      <!-- Container for activity blocks -->
+      <ng-container *ngFor="let act of scenario.activities; let i = index">
+        <div (click)="selectActivity(i)" class="activity-container" [ngStyle]="act.in_class?{'top': '131px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '20px', 'background-color': 'rgb(100,126,228)'} : {'top': '131px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '20px', 'background-color': 'rgb(92,184,92)'}">
+            <span class="activity-text-container" style="display: block;">
+            <span class="activity-duration-container">{{act.duration}}<span class="activity-duration-min-container">min</span>
+            </span>{{act.name}}</span>
+            <img *ngIf="act.organization == 'individual'" src="/assets/img/one.png" class="activity-org-icon" alt="Individual" style="display: block;"><span *ngIf="act.organization == 'individual'" class="activity-org-title">Individual</span>
+            <img *ngIf="act.organization == 'pair'" src="/assets/img/pair.png" class="activity-org-icon" alt="Pair" style="display: block;"><span *ngIf="act.organization == 'pair'" class="activity-org-title">Pair</span>
+            <img *ngIf="act.organization == 'small group'" src="/assets/img/group.png" class="activity-org-icon" alt="Small group" style="display: block;"><span *ngIf="act.organization == 'small group'" class="activity-org-title">Small group</span>
+            <img *ngIf="act.organization == 'whole class'" src="/assets/img/group.png" class="activity-org-icon" alt="Whole class" style="display: block;"><span *ngIf="act.organization == 'whole class'" class="activity-org-title">Whole class</span>
+        </div>
+        <ng-container *ngFor="let m of act.materials">
+            <div class="material-wrapper top" *ngIf="m.position == 'top'" [ngStyle]="{'top': '84px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '47px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container top" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container top" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div> 
+            </div>
+
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '0'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '29px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>
+
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '1'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '53px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>
+            
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '2'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '77px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>    
+            
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '3'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '101px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>
+            
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '4'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '125px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>
+            
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '5'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '149px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>
+            
+            <div class="material-wrapper bottom" *ngIf="m.position == 'bottom' && m.involvement_level == '6'" [ngStyle]="{'top': '151px', 'left': act.cssLeft + 'px', 'width': act.cssWidth + 'px', 'height': '173px', 'background-color': 'transparent'}">
+                <div *ngIf="m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}"><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></div>
+                <div *ngIf="!m.material_url" class="material-container bottom" title={{m.material_name}} [ngStyle]="act.in_class?{'background-color': 'rgb(159,192,255)'} : {'background-color': 'rgb(202,255,190)'}">{{m.material_name}}</div>
+            </div>            
+
+        </ng-container>
+
+    </ng-container>
+
+    </div>
+  </div>
+</div>
+
+<div>
+  <ion-segment (ionChange)="segmentChanged($event)" value="activities" [(ngModel)]="segmentModel">
+    <ion-segment-button value="activities">
+      <ion-label>Activities</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="events">
+      <span>
+        <ion-label>Events</ion-label>
+        <ion-badge class="notification-badge" *ngIf="role=='teacher'" color="danger">!</ion-badge>
+      </span>
+    </ion-segment-button>
+    <ion-segment-button value="participants">
+      <span>
+        <ion-label>Participants</ion-label>
+        <ion-badge id="badge" color="primary">{{studentList.length+1}}</ion-badge>
+      </span>
+    </ion-segment-button>    
+  </ion-segment>
+
+  <!-- Segment containing all the information about the current activity -->
+
+  <ion-grid *ngIf="scenario && scenario.activities && segmentModel=='activities'; else noActivity" style="margin-top: 20px;">
+    <ng-container *ngIf="selectedActivity >=0">
+      <div class="ion-text-center">
+        <h2 class="activity-title">({{selectedActivity+1}}/{{scenario.activities.length}}) {{scenario.activities[selectedActivity].name}}</h2>
+        <div class="ion-float-center">
+              <ion-icon class="activity-icons" name="hourglass" color="primary"></ion-icon>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].duration>1"> {{scenario.activities[selectedActivity].duration}} minutes - </span>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].duration==1"> {{scenario.activities[selectedActivity].duration}} minute - </span>
+              <ion-icon class="activity-icons-margin" name="home" color="primary" *ngIf="scenario.activities[selectedActivity].in_class==false"></ion-icon>
+              <ion-icon class="activity-icons-margin" name="school" color="primary" *ngIf="scenario.activities[selectedActivity].in_class==true"></ion-icon>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].in_class==false"> Off class - </span>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].in_class==true"> In class - </span>
+              <ion-img class="activity-icons-margin" src="assets/img/oneB.png" *ngIf="scenario.activities[selectedActivity].organization=='individual'"></ion-img>
+              <ion-img class="activity-icons-marginn" src="assets/img/pairB.png" *ngIf="scenario.activities[selectedActivity].organization=='pair'"></ion-img>
+              <ion-img class="activity-icons-margin" src="assets/img/groupB.png" *ngIf="scenario.activities[selectedActivity].organization=='small group' || scenario.activities[selectedActivity].organization=='whole class'"></ion-img>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].organization=='individual'"> Individual </span>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].organization=='pair'"> Pair </span>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].organization=='small group'"> Small group </span>
+              <span class="activity-text-with-icon" *ngIf="scenario.activities[selectedActivity].organization=='whole class'"> Whole class </span>
+        </div>
+      <ion-list>
+        <ion-item *ngIf="scenario.activities[selectedActivity].outcomes.length > 0">
+          <ion-label>
+            <div class="ion-text-center">
+              <h2><b>Learning outcomes</b></h2>
+                  <ul>
+                    <h2><li *ngFor="let out of scenario.activities[selectedActivity].outcomes;">{{out.name}}</li></h2>
+                  </ul>
+            </div>
+          </ion-label>
+        </ion-item>
+        <ion-item *ngFor="let m of scenario.activities[selectedActivity].materials">
+          <ion-label>
+            <div class="ion-text-center">
+              <h2 *ngIf="m.position == 'bottom';else top"><b>Student resource</b></h2>
+              <ng-template #top><h2><b>Teacher resource</b></h2></ng-template>
+              <ul>
+                <h2 *ngIf="m.material_url; else elseShow"><li><a href={{m.material_url}} target="_blank">{{m.material_name}}</a></li></h2>
+                <ng-template #elseShow><h3><li>{{m.material_name}}</li></h3></ng-template>
+                <ul class="sublist">
+                  <li><h3 *ngIf="m.position == 'bottom'"><b>Cognitive effort (1-6): </b> <i>{{m.involvement.name}}</i></h3></li>
+                  <li *ngIf="m.conveyors.length > 0"><h3>Conveyors:</h3></li>
+                  <ul class ="sub-sublist" *ngIf="m.conveyors.length > 0">
+                    <li *ngFor="let con of m.conveyors;"><a *ngIf="con.url; else elseShowCon" href={{con.url}} style="font-size: 14px;"  target="_blank">{{con.name}}</a>
+                      <ng-template #elseShowCon><span style="font-size: 14px;">{{con.name}}</span></ng-template>
+                    </li> 
+                  </ul>
+                  <li *ngIf="m.displays.length > 0"><h3>Displays:</h3></li>
+                  <ul class = "sub-sublist">
+                    <li *ngFor="let d of m.displays;"><ion-icon name="desktop-sharp" class="display-icons" *ngIf="d.name=='computer'"></ion-icon><ion-icon name="tablet-portrait-sharp" class="display-icons" *ngIf="d.name=='tablet'"></ion-icon><ion-icon name="phone-portrait-sharp" class="display-icons" *ngIf="d.name=='smartphone'"></ion-icon><ion-icon name="tv-outline" class="display-icons" *ngIf="d.name!='smartphone' && d.name!='computer' && d.name!='tablet'"></ion-icon><span style="font-size: 14px;text-transform: capitalize;">{{d.name}}</span></li>
+                  </ul>
+                </ul>
+              </ul>
+            </div>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+              <h2 style="text-align: center;"><b>Teacher annotations (Updated live)</b></h2>
+            <ul>
+              <ng-container *ngFor="let annotation of annotations">
+                <ion-item *ngIf="annotation.activity-1 == selectedActivity" lines="none" class="ion-no-padding">
+                    <li style="font-size:14px;"><b>{{annotation.elapsedClassTime}}'</b> {{annotation.text}}</li>
+                    <ion-button *ngIf="role=='teacher' && runningStatus==1" (click)="removeAnnotation(annotation)" fill="clear"><ion-icon style="margin-left:5px;width:16px;height:16px;" name="close" color="danger"></ion-icon></ion-button>
+                </ion-item>
+            </ng-container>
+            </ul>
+            <ion-button (click)="addAnnotation()" *ngIf="role=='teacher' && runningStatus==1" class="add-note" color="danger" style="margin-left: 40px;"><ion-icon name="add-circle-outline" style="margin-right:5px;"></ion-icon>Add annotation</ion-button>
+          </ion-label>
+        </ion-item>
+        <ion-item *ngIf="role=='student'">
+          <ion-label>
+            <h2 style="text-align: center;"><b>Your annotations (Only visible to you!)</b></h2>
+            <ul>
+              <ng-container *ngFor="let annotation of studentAnnotations">
+                <ion-item *ngIf="annotation.activity-1 == selectedActivity" lines="none" class="ion-no-padding">
+                    <li style="font-size:14px;"><b>{{annotation.elapsedClassTime}}'</b> {{annotation.text}}</li>
+                    <ion-button (click)="removeAnnotation(annotation)" *ngIf="runningStatus==1" fill="clear"><ion-icon style="margin-left:5px;width:16px;height:16px;" name="close" color="danger"></ion-icon></ion-button>
+                </ion-item>
+            </ng-container>
+            </ul>
+            <ion-button (click)="addAnnotation()" class="add-note" color="danger" style="margin-left: 40px;"><ion-icon name="add-circle-outline" style="margin-right:5px;"></ion-icon>Add annotation</ion-button>
+          </ion-label>
+        </ion-item>        
+      </ion-list>
+    </div>
+  </ng-container>
+</ion-grid>
+
+  <!-- Segment containing all the information about the events that took place in the session -->
+
+<ion-grid *ngIf="segmentModel=='events'" style="margin-top:20px;">
+  <ion-row style="margin-bottom:10px;">
+    <ion-col style="margin-left:13px; font-size: 11px;">Teacher events</ion-col>
+    <ion-col style="margin-left:13px; font-size: 11px;">Student events</ion-col>
+  </ion-row>
+  <ion-row *ngFor="let event of events; let i = index">
+    <ng-container *ngIf="event.role=='teacher'">
+      <ion-col [id]="'event' + i + 'a'" size="2">
+        <ion-icon style="margin-left:13px;" class="event-icons" name="alarm-outline" color="primary"></ion-icon>
+        <span style="margin-left:2px;font-size:18px;vertical-align:middle;">{{event.elapsedClassTime}}'</span>
+        <ion-icon class="event-icons" name="reader-outline" color="primary" style="margin-left: 2px;"></ion-icon>
+        <span style="margin-left:2px;font-size:18px;vertical-align:middle;">{{event.activity}}</span>
+      </ion-col>
+      <ion-col  [id]="'event' + i + 'b'" size="4" style="border-right: 1px solid lightgray;text-align: left;">
+        <ng-container *ngIf="event.type=='intervention-request'">
+          <span class="event-comment" style="font-size:18px;vertical-align:middle;"><b>{{event.teacher_name}}</b> asked <ng-container *ngFor="let student of event.students; let i = index"><b>{{student.name}}</b><ng-container *ngIf="(i+1)<event.students.length">, </ng-container></ng-container> to participate</span>
+        </ng-container>
+        <ng-container *ngIf="event.type=='annotation'">
+          <span class="event-comment" style="font-size:18px;vertical-align:middle;"><b>{{event.teacher_name}}</b> added a new annotation</span>
+        </ng-container>        
+      </ion-col>
+      <ion-col size="2">
+        <!--Columns related to student events empty (this row was triggered by a teacher event)-->
+      </ion-col>
+      <ion-col size="4" style="text-align: left;">
+        <!--Columns related to student events empty (this row was triggered by a teacher event)-->  
+      </ion-col>      
+    </ng-container>
+    <ng-container *ngIf="event.role=='student'">
+      <ion-col size="2">
+        <!--Columns related to teacher events empty (this row was triggered by a student event)-->
+      </ion-col>
+      <ion-col size="4" style="border-right: 1px solid lightgray;text-align: left;">     
+        <!--Columns related to teacher events empty (this row was triggered by a student event)-->
+      </ion-col>      
+      <ion-col [id]="'event' + i + 'a'" size="2">
+        <ion-icon style="margin-left:13px;" class="event-icons" name="alarm-outline" color="primary"></ion-icon>
+        <span style="margin-left:2px;font-size:18px;vertical-align:middle;">{{event.elapsedClassTime}}'</span>
+        <ion-icon class="event-icons" name="reader-outline" color="primary" style="margin-left: 2px;"></ion-icon>
+        <span style="margin-left:2px;font-size:18px;vertical-align:middle;">{{event.activity}}</span>
+      </ion-col>
+      <ion-col [id]="'event' + i + 'b'" size="4" style="text-align: left;">
+        <ng-container *ngIf="event.type=='hand-raise'">
+          <span class="event-comment" style="font-size:18px;vertical-align:middle;"><b>{{event.student.name}}</b> raised his hand</span>
+        </ng-container>        
+      </ion-col>
+    </ng-container>
+  </ion-row>
+</ion-grid>
+
+  <!-- Segment containing the list of participants (teacher and connected students) -->
+
+<ion-list *ngIf="segmentModel=='participants'">
+  <ion-item>
+    <ion-avatar slot="start">
+      <ion-icon style="font-size:28px;padding-top: 5px;" name="person-outline"></ion-icon>
+    </ion-avatar>
+    <ion-label>
+      <span class="text-with-icon"> {{scenario.teacherName}} <b>(TEACHER)</b> </span>
+    </ion-label>
+  </ion-item>
+  <ion-item *ngFor="let student of studentCheckboxList">
+    <ion-avatar slot="start">
+      <ion-icon style="font-size:28px;padding-top: 5px;" name="person-outline"></ion-icon>
+    </ion-avatar>
+    <ion-label><span class="text-with-icon"> {{student.student_name}} </span></ion-label>
+    <ion-checkbox *ngIf="role=='teacher'" slot="end" [(ngModel)]="student.selected"></ion-checkbox>
+  </ion-item>
+</ion-list> 
+
+<ng-template #noActivity>
+  <div class="ion-text-center" style="margin-top: 20px;" *ngIf="selectedActivity<0">
+    <h3 class="no-activity-title">Waiting for the start of the class...</h3>
+  </div>
+</ng-template>
+
+</div>
+
+</ion-content>
+
+<!-- Footer with classroom progress information -->
+
+<ion-footer *ngIf="runningStatus!=0">
+  <ion-toolbar color="light">
+      <ion-grid>
+        <ion-row>
+          <ion-col><div class="ion-text-center"><b>Status</b></div></ion-col>
+          <ion-col><div class="ion-text-center"><b>Class time left</b></div></ion-col>
+          <ion-col><div class="ion-text-center"><b>Activity</b></div></ion-col>
+          <ion-col><div class="ion-text-center"><b>Activity time left</b></div></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-text color="success" *ngIf="runningStatus==1">
+              <div class="ion-text-center" *ngIf="paused==false"><b>RUNNING</b></div>
+              <div class="ion-text-center" *ngIf="paused==true"><b>RUNNING</b><ion-text color="medium"> <b>(PAUSED)</b></ion-text></div>
+            </ion-text>
+            <ion-text color="danger" *ngIf="runningStatus==2">
+              <div class="ion-text-center"><b>FINISHED</b></div>
+            </ion-text>
+          </ion-col>
+          <ion-col>
+            <div class="ion-text-center">
+              <ng-container>{{timeLeft | hoursMinutes}}</ng-container>
+            </div>
+          </ion-col>
+          <ion-col>
+            <div class="ion-text-center">
+              <ng-container *ngIf="activityBlocks>=currentActivity">{{currentActivity}}/{{activityBlocks}}</ng-container>
+            </div>
+          </ion-col>
+          <ion-col>
+            <div class="ion-text-center">
+              <ng-container *ngIf="activityBlocks>=currentActivity">{{currentActivityTimeLeft | hoursMinutes}}</ng-container>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+  </ion-toolbar>
+</ion-footer>
