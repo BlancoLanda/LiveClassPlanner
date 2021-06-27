@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://i.imgur.com/nLfbLJQ.png"><br></br>
-  <b style="font-size:24px;">Live version:</b> <a href style="font-size:24px;"="https://classplanner.mblanco.me/">classplanner.mblanco.me</a>
+  <b style="font-size:32px;">Live version:</b> <a href="https://classplanner.mblanco.me/" style="font-size:32px;">classplanner.mblanco.me</a>
 </p>
 
 ## Introduction
