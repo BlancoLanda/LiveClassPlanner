@@ -1,8 +1,8 @@
 # Live Class Planner (based in [LePlanner](leplanner.ee))
 
 <p align="center">
-  <img src="https://i.imgur.com/nLfbLJQ.png"><br></br>
-  <b style="font-size:32px;">Live version:</b> <a href="https://classplanner.mblanco.me/" style="font-size:32px;">classplanner.mblanco.me</a>
+  <img src="timetable-view.png"><br></br>
+  <b>LIVE VERSION:</b> <a href="https://classplanner.mblanco.me/" style="font-size:32px;">classplanner.mblanco.me</a>
 </p>
 
 ## Introduction
