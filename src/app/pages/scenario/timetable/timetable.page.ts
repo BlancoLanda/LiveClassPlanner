@@ -323,12 +323,15 @@ export class TimetablePage implements OnInit, OnDestroy {
       .get()
       .then((doc) => {
         // Getting classroom data from database.
-        this.startTime = doc.data()['startTime'].toDate();
+        if(doc.data()['startTime']) {
+          this.startTime = doc.data()['startTime'].toDate();
+        }
         this.paused = doc.data()['paused'];
         this.currentActivity = doc.data()['currentActivity'];
         this.runningStatus = doc.data()['runningStatus'];
         this.lastPausedTime = doc.data()['lastPausedTime']?.toDate();
         this.updateCurrentActivity(doc.data()['currentActivity']);
+        this.studentList = doc.data()['studentList'];    
         // Trigger data refresh each 5 seconds
         this.refreshData();
         this.intervalId = setInterval(()=> this.refreshData(), 5000);
