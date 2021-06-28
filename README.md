@@ -7,7 +7,7 @@
 
 ## Introduction
 
-This tool allows to test and work with [LePlanner](https://leplanner.ee) scenarios, a new concept for graphical visualization of Educational Modelling Languages (EMLs) designed and managed by the School of Digital Technologies of Tallinn University (TLU). Its purpose is to give assistance to teachers and students during the development of teaching/learning experiences. 
+This tool, implemented as a _Progressive Web App_, allows to test and work with [LePlanner](https://leplanner.ee) scenarios, a new concept for graphical visualization of Educational Modelling Languages (EMLs) designed and managed by the School of Digital Technologies of Tallinn University (TLU). Its purpose is to give assistance to teachers and students during the development of teaching/learning experiences. 
 
 The original approach from _LePlanner_ is implemented and substantially extended considering its usage during classroom sessions, aiming to not only be useful as a classroom planner before the start of the sessions, but also throughout the session itself.
 
