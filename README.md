@@ -24,7 +24,7 @@ It includes functionalities like:
 
 The user manual [can be found here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/user-manual.pdf)
 
-# Report and documentation
+# Report and technical documentation
 
 This work was made for my bachellor thesis. You can find the report, written in spanish, which includes the background and technical documentation [here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/thesis.pdf)
 
@@ -84,4 +84,4 @@ firebase deploy --only hosting
 
 ## Contact
 
-If you have any question or suggestion about this work, you can reach me at contact@mblanco.me
+If you have any question or suggestion, you can reach me at contact@mblanco.me
