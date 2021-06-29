@@ -20,6 +20,14 @@ It includes functionalities like:
 * Interaction between teachers and students: Adding public and private annotations for each activity, asking for intervention, etc.
 * A public timeline registers all the events that chronologically took place in the session, resulting in a full log of the session.
 
+# User manual
+
+The user manual [can be found here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/user-manual.pdf)
+
+# Report and documentation
+
+This work was made for my bachellor thesis. You can find the report which includes the background and technical documentation [here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/thesis.pdf)
+
 ## Requirements
 * [NodeJS](https://nodejs.org/es/)
 * [Angular CLI](https://angular.io/guide/setup-local)
@@ -73,3 +81,7 @@ ionic serve
 ionic build --prod
 firebase deploy --only hosting
 ```
+
+## Contact
+
+If you have any question or suggestion about this work, you can reach me at contact@mblanco.me
