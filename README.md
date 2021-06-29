@@ -26,7 +26,7 @@ The user manual [can be found here.](https://github.com/BlancoLanda/LiveClassPla
 
 # Report and documentation
 
-This work was made for my bachellor thesis. You can find the report which includes the background and technical documentation [here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/thesis.pdf)
+This work was made for my bachellor thesis. You can find the report, written in spanish, which includes the background and technical documentation [here.](https://github.com/BlancoLanda/LiveClassPlanner/raw/main/thesis.pdf)
 
 ## Requirements
 * [NodeJS](https://nodejs.org/es/)
