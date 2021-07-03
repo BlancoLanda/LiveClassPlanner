@@ -16,7 +16,7 @@ It includes functionalities like:
 * Teachers can create a classroom session with a shareable PIN. Every student will be able to join using that PIN.
 * Every classroom session makes use of a Leplanner learning scenario.
 * Every user has got access to the list of connected teachers/students.
-* Teachers can start/stop/pause/unpause the session. A running session runs goes over the activity blocks of the scenario until it finishes, showing all the information related to each activity.
+* Teachers can start/stop/pause/unpause the session. A running session goes over the activity blocks of the scenario until it finishes, showing all the information related to each activity.
 * Interaction between teachers and students: Adding public and private annotations for each activity, asking for intervention, etc.
 * A public timeline registers all the events that chronologically took place in the session, resulting in a full log of the session.
 
